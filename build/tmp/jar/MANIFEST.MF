@@ -1,0 +1,44 @@
+Manifest-Version: 1.0
+Bundle-Description: Page Rest Endpoint
+Bundle-SymbolicName: com.dotcms.rest.page
+Bundle-ManifestVersion: 2
+Bnd-LastModified: 1494396806000
+Bundle-DocURL: http://www.dotcms.com
+Bundle-Vendor: dotcms
+Import-Package: com.dotcms.mock.response;version=0,com.dotcms.repackag
+ e.javax.ws.rs;version=0,com.dotcms.repackage.javax.ws.rs.core;version
+ =0,com.dotcms.rest;version=0,com.dotcms.rest.annotation;version=0,com
+ .dotcms.rest.config;version=0,com.dotmarketing.beans;version=0,com.do
+ tmarketing.business;version=0,com.dotmarketing.business.web;version=0
+ ,com.dotmarketing.exception;version=0,com.dotmarketing.osgi;version=0
+ ,com.dotmarketing.portlets.containers.business;version=0,com.dotmarke
+ ting.portlets.containers.model;version=0,com.dotmarketing.portlets.co
+ ntentlet.model;version=0,com.dotmarketing.portlets.htmlpageasset.busi
+ ness;version=0,com.dotmarketing.portlets.htmlpageasset.model;version=
+ 0,com.dotmarketing.portlets.languagesmanager.business;version=0,com.d
+ otmarketing.portlets.languagesmanager.model;version=0,com.dotmarketin
+ g.portlets.structure.model;version=0,com.dotmarketing.portlets.templa
+ tes.business;version=0,com.dotmarketing.portlets.templates.design.bea
+ n;version=0,com.dotmarketing.portlets.templates.model;version=0,com.d
+ otmarketing.util;version=0,com.dotmarketing.viewtools;version=0,com.f
+ asterxml.jackson.annotation;version=0,com.fasterxml.jackson.core;vers
+ ion=0,com.fasterxml.jackson.databind;version=0,com.liferay.portal.mod
+ el;version=0,javax.servlet.http;version=0,org.apache.velocity.context
+ ;version=0,org.apache.velocity.exception;version=0,org.apache.velocit
+ y.tools.view.context;version=0,org.osgi.framework;version=0
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.8))"
+DynamicImport-Package: *
+Tool: Bnd-3.2.0.201605172007
+Export-Package: com.dotcms.plugin.rest.page;version="0.1";uses:="com.d
+ otcms.repackage.javax.ws.rs,com.dotcms.repackage.javax.ws.rs.core,com
+ .dotcms.rest.annotation,com.dotmarketing.beans,com.dotmarketing.busin
+ ess,com.dotmarketing.exception,com.dotmarketing.osgi,com.dotmarketing
+ .portlets.htmlpageasset.model,com.dotmarketing.portlets.templates.des
+ ign.bean,com.dotmarketing.portlets.templates.model,com.fasterxml.jack
+ son.core,javax.servlet.http,org.apache.velocity.exception,org.osgi.fr
+ amework"
+Bundle-Name: Page Rest Endpoint
+Bundle-Version: 0.1
+Bundle-Activator: com.dotcms.plugin.rest.page.Activator
+Created-By: 1.8.0_51 (Oracle Corporation)
+
