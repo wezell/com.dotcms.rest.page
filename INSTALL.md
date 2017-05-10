@@ -34,22 +34,14 @@ Undeploy the bundle using the dotCMS UI (CMS Admin->Dynamic Plugins->Undeploy).
 ## How to test
 ----
 
-Once installed, you can access this resource by (this assumes you are on localhost)
+Once installed, you can access a page's resources (where /index is the path to the page you want to show)
 
-`http://localhost:8080/api/example`
+`http://localhost:8080/api/page/json/index`
 
-or this, which requires an dotcms user to access(See authentication below)
-
-`http://localhost:8080/api/example/auth`
+or this, which will return the rendered containers and page
 
 
-You can try the put and post resources by
-
-`curl -XPUT http://localhost:8080/api/example`
-
-`curl -XPOST http://localhost:8080/api/example`
-
-
+`http://localhost:8080/api/page/snippets/index`
 
 
 ## Authentication
