@@ -46,6 +46,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.liferay.portal.model.User;
 
+import com.dotmarketing.portlets.structure.model.*;
 @Path("/page")
 public class PageResource  {
 
@@ -55,10 +56,12 @@ public class PageResource  {
     private final 
     ObjectMapper mapper = new ObjectMapper()
         .addMixIn(Permissionable.class, PermissionableMixIn.class)
+        .addMixIn(Container.class, PermissionableMixIn.class)
         .addMixIn(Contentlet.class, ContentletMixIn.class)
         .addMixIn(HTMLPageAsset.class, ContentletMixIn.class)
-        .addMixIn(Host.class, ContentletMixIn.class);
-    
+        .addMixIn(Host.class, ContentletMixIn.class)
+        .addMixIn(Field.class, FieldMixIn.class)
+        .addMixIn(Structure.class, Structure.class);
     
 
     /**
