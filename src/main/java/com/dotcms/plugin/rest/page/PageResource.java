@@ -123,8 +123,8 @@ public class PageResource  {
      */
     @NoCache
     @GET
-    @Path("/snippets/{uri: .*}")
-    public Response loadSnippets(@Context HttpServletRequest request,@Context HttpServletResponse response, @PathParam("uri") String uri) throws ResourceNotFoundException, ParseErrorException, Exception {
+    @Path("/render/{uri: .*}")
+    public Response renderPage(@Context HttpServletRequest request,@Context HttpServletResponse response, @PathParam("uri") String uri) throws ResourceNotFoundException, ParseErrorException, Exception {
         // force authentication
         InitDataObject auth = webResource.init(false, request, false);
         
