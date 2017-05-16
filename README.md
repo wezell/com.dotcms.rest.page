@@ -9,16 +9,16 @@ This resoruce will give you all the objects on an associated page (template, the
 
 To call this method, send:
 
-http://localhost:8080/api/page/json/{path-to-your-page}
+`http://localhost:8080/api/page/json/{path-to-your-page}`
 
 e.g.
 
-http://localhost:8080/api/page/json/about-us/locations/index
+`http://localhost:8080/api/page/json/about-us/locations/index`
 
 
 To render the page contents, send "render" instead of "json"  
 
-http://localhost:8080/api/page/render/about-us/locations/index
+`http://localhost:8080/api/page/render/about-us/locations/index`
 
 
 ## 2. ContentRelationshipResource
@@ -27,15 +27,15 @@ This resource will allow you to pull content using similar syntaxt as the normal
 
 Pass a query 
 
-http://localhost:8080/api/contentRelationships/query/+contentType:News%20+(conhost:48190c8c-42c4-46af-8d1a-0cd5db894797%20conhost:SYSTEM_HOST)%20+deleted:false%20+working:true/limit/3/orderby/modDate%20desc
+`http://localhost:8080/api/contentRelationships/query/+contentType:News%20+(conhost:48190c8c-42c4-46af-8d1a-0cd5db894797%20conhost:SYSTEM_HOST)%20+deleted:false%20+working:true/limit/3/orderby/modDate%20desc`
 
 or an id
 
-http://localhost:8080/api/contentRelationships/id/2943b5eb-9105-4dcf-a1c7-87a9d4dc92a6
+`http://localhost:8080/api/contentRelationships/id/2943b5eb-9105-4dcf-a1c7-87a9d4dc92a6`
 
 or an inode
 
-http://localhost:8080/api/contentRelationships/inode/aaee9776-8fb7-4501-8048-844912a20405
+`http://localhost:8080/api/contentRelationships/inode/aaee9776-8fb7-4501-8048-844912a20405`
 
 
 
