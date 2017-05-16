@@ -72,7 +72,7 @@ Curl Example:
 
 
 
-## Exports I needed to get this to work
+## Exports needed to get this to work
 ```
 javax.management,
 javax.servlet.resources,
