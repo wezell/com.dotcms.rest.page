@@ -1,7 +1,5 @@
 package com.dotcms.plugin.rest.page;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +7,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.output.NullWriter;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
@@ -46,20 +43,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.liferay.portal.model.User;
 
+
+
+
+/**
+ * 
+ * 
+ * Call 
+ *
+ */
 @Path("/page")
 public class PageResource  {
 
     private final WebResource webResource = new WebResource();
-
-
-    private final 
-    ObjectMapper mapper = new ObjectMapper()
-        .addMixIn(Permissionable.class, PermissionableMixIn.class)
-        .addMixIn(Contentlet.class, ContentletMixIn.class)
-        .addMixIn(HTMLPageAsset.class, ContentletMixIn.class)
-        .addMixIn(Host.class, ContentletMixIn.class);
-    
-    
 
     /**
 
@@ -74,8 +70,8 @@ public class PageResource  {
      */
     @NoCache
     @GET
-    @Path("/json/{params: .*}")
-    public Response loadJson(@Context HttpServletRequest request, @PathParam("params") String uri) throws DotStateException,
+    @Path("/json/{uri: .*}")
+    public Response loadJson(@Context HttpServletRequest request, @PathParam("uri") String uri) throws DotStateException,
             DotDataException, DotSecurityException, JsonProcessingException {
         // force authentication
         InitDataObject auth = webResource.init(false, request, false);
@@ -102,12 +98,16 @@ public class PageResource  {
         
         PageResourceHolder prh = new PageResourceHolder(host, template, newContainers, page, layout);
 
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        ObjectWriter ow = JsonMapper.mapper.writer().withDefaultPrettyPrinter();
 
         String json = ow.writeValueAsString(prh);
         System.out.println("page param:" + uri);
         
         ResponseBuilder builder = Response.ok(json, MediaType.APPLICATION_JSON);
+
+        builder.header("Access-Control-Expose-Headers", "Authorization");
+        builder.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+        
         return builder.build();
 
     }
@@ -123,8 +123,8 @@ public class PageResource  {
      */
     @NoCache
     @GET
-    @Path("/snippets/{params: .*}")
-    public Response loadSnippets(@Context HttpServletRequest request,@Context HttpServletResponse response, @PathParam("params") String uri) throws ResourceNotFoundException, ParseErrorException, Exception {
+    @Path("/snippets/{uri: .*}")
+    public Response loadSnippets(@Context HttpServletRequest request,@Context HttpServletResponse response, @PathParam("uri") String uri) throws ResourceNotFoundException, ParseErrorException, Exception {
         // force authentication
         InitDataObject auth = webResource.init(false, request, false);
         
@@ -155,12 +155,15 @@ public class PageResource  {
         
         PageResourceHolder prh = new PageResourceHolder(host, template, newContainers, page, layout);
 
-        ObjectWriter ow = mapper.writer().withDefaultPrettyPrinter();
+        ObjectWriter ow = JsonMapper.mapper.writer().withDefaultPrettyPrinter();
 
         String json = ow.writeValueAsString(prh);
 
         
         ResponseBuilder builder = Response.ok(json, MediaType.APPLICATION_JSON);
+        
+        builder.header("Access-Control-Expose-Headers", "Authorization");
+        builder.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
         return builder.build();
 
     }
