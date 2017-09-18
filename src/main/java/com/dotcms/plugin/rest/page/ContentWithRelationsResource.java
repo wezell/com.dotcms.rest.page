@@ -1,5 +1,7 @@
 package com.dotcms.plugin.rest.page;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +78,9 @@ public class ContentWithRelationsResource {
     String inode = paramsMap.get(RESTParams.INODE.getValue());
     orderBy = UtilMethods.isSet(orderBy) ? orderBy : "modDate desc";
     long language = APILocator.getLanguageAPI().getDefaultLanguage().getId();
+    String[] parts = query.split(" +");
+
+/*
 
     if (paramsMap.get(RESTParams.LANGUAGE.getValue()) != null) {
       try {
@@ -83,6 +88,19 @@ public class ContentWithRelationsResource {
       } catch (Exception e) {
         Logger.warn(this.getClass(), "Invald language passed in, defaulting to, well, the default");
       }
+    }
+*/
+
+    try {
+      String result = URLDecoder.decode(query, "UTF-8");
+      for (String pair : result.split(" +")) {
+        String[] kv = pair.split(":");
+        if (kv.length > 1 && kv[0].equals("languageId")) {
+          language = Integer.parseInt(kv[1]);
+        }
+      }
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
     }
 
     /* Limit and Offset Parameters Handling, if not passed, using default */
@@ -145,6 +163,7 @@ public class ContentWithRelationsResource {
         for(Contentlet c : rel.getRecords()){
           Logger.info(this, "No longer adding this Content : " + c.getIdentifier() + ", lang: " + c.getLanguageId());
           try {
+//            arr.add(toJson(c, user));
             List<Contentlet> list =  APILocator.getContentletAPI().getAllLanguages(c,true, user, false);
             for(Contentlet item : list){
               if (item.getLanguageId() == language) {
