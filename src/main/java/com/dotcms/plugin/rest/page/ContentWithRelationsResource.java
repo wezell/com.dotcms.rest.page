@@ -143,7 +143,18 @@ public class ContentWithRelationsResource {
           arr = new JSONArray();
         }
         for(Contentlet c : rel.getRecords()){
-          arr.add(toJson(c, user));
+          Logger.info(this, "No longer adding this Content : " + c.getIdentifier() + ", lang: " + c.getLanguageId());
+          try {
+            List<Contentlet> list =  APILocator.getContentletAPI().getAllLanguages(c,true, user, false);
+            for(Contentlet item : list){
+              if (item.getLanguageId() == language) {
+                arr.add(toJson(item, user));
+                Logger.info(this, "Adding Content : " + item.getIdentifier() + ", " + item.getLanguageId());
+              }
+            }
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
         }
         jo.put(rel.getRelationship().getRelationTypeValue(), arr);
       }
