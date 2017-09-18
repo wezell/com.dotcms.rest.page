@@ -147,10 +147,10 @@ public class ContentWithRelationsResource {
           try {
             List<Contentlet> list =  APILocator.getContentletAPI().getAllLanguages(c,true, user, false);
             for(Contentlet item : list){
-//              if (item.getLanguageId() == language) {
+              if (item.getLanguageId() == language) {
                 arr.add(toJson(item, user));
                 Logger.info(this, "Adding Content : " + item.getIdentifier() + ", " + item.getLanguageId());
-//              }
+              }
             }
           } catch (Exception e) {
             e.printStackTrace();
