@@ -7,13 +7,13 @@ sourceCompatibility = '1.8'
 version = '0.1'
 
 repositories {
-	maven {
+    maven {
         url "http://repo.dotcms.com/artifactory/libs-release"
     }
 }
 
 dependencies {
-	compile fileTree(dir: 'src/main/resources/libs', include: '*.jar')
+    compile fileTree(dir: 'src/main/resources/libs', include: '*.jar')
     compile (group: 'com.dotcms', name: 'dotcms', version: '4.1.0'){
         transitive = true
     }
@@ -23,10 +23,10 @@ def tmpPath = "build/tmp/fragment"
 
 task mani{
 
-	doLast {
-		new File( tmpPath + "/META-INF").mkdirs()
-	
-		def exportFragmentStr = '''\
+    doLast {
+        new File( tmpPath + "/META-INF").mkdirs()
+    
+        def exportFragmentStr = '''\
 Bundle-ManifestVersion: 2
 Bundle-Name: System extra packages
 Bundle-SymbolicName: fragment.system.extra.packages
@@ -34,20 +34,20 @@ Bundle-Version: 1.0
 Bundle-Description: Bundle exporting 3rdparty libs
 Fragment-Host: system.bundle; extension:=framework
 Export-Package: com.dotcms.mock.response,com.dotcms.repackage.javax.ws.rs,com.dotcms.repackage.javax.ws.rs.core,com.dotcms.repackage.javax.ws.rs.core.Response,com.dotcms.rest,com.dotcms.rest.annotation,com.dotcms.rest.config,com.dotmarketing.beans,com.dotmarketing.business,com.dotmarketing.business.web,com.dotmarketing.exception,com.dotmarketing.osgi,com.dotmarketing.portlets.containers.business,com.dotmarketing.portlets.containers.model,com.dotmarketing.portlets.contentlet.business,com.dotmarketing.portlets.contentlet.model,com.dotmarketing.portlets.contentlet.util,com.dotmarketing.portlets.htmlpageasset.business,com.dotmarketing.portlets.htmlpageasset.model,com.dotmarketing.portlets.languagesmanager.business,com.dotmarketing.portlets.languagesmanager.model,com.dotmarketing.portlets.structure.model,com.dotmarketing.portlets.structure.model.ContentletRelationships,com.dotmarketing.portlets.templates.business,com.dotmarketing.portlets.templates.design.bean,com.dotmarketing.portlets.templates.model,com.dotmarketing.util,com.dotmarketing.util.json,com.dotmarketing.viewtools,com.dotmarketing.viewtools.content.util,com.fasterxml.jackson.annotation,com.fasterxml.jackson.core,com.fasterxml.jackson.databind,com.liferay.portal.model,javax.management,javax.servlet.resources,javax.servlet;javax.servlet.http;version=3.1.0,org.apache.velocity.context,org.apache.velocity.exception,org.apache.velocity.tools.view.context,org.osgi.framework
-		'''
-		new File(tmpPath + "/META-INF/MANIFEST.MF").write(exportFragmentStr)
-	}
+        '''
+        new File(tmpPath + "/META-INF/MANIFEST.MF").write(exportFragmentStr)
+    }
 }
 
 
 
 task fragment(type: Zip, dependsOn: mani) {
-	new File("build/libs").mkdirs()
-   	from tmpPath
-  	include '*'
-   	include '*/*' //to include contents of a folder present inside Reports directory
-   	archiveName 'page-rest-exports-fragment.jar'
-   	destinationDir(file('build/libs'))
+    new File("build/libs").mkdirs()
+    from tmpPath
+    include '*'
+    include '*/*' //to include contents of a folder present inside Reports directory
+    archiveName 'page-rest-exports-fragment.jar'
+    destinationDir(file('build/libs'))
 }
 
 

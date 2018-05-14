@@ -1,15 +1,5 @@
 package com.dotcms.plugin.rest.page;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-
 import com.dotcms.mock.response.BaseResponse;
 import com.dotcms.mock.response.MockHttpResponse;
 import com.dotcms.repackage.javax.ws.rs.GET;
@@ -22,12 +12,12 @@ import com.dotcms.repackage.javax.ws.rs.core.Response.ResponseBuilder;
 import com.dotcms.rest.InitDataObject;
 import com.dotcms.rest.WebResource;
 import com.dotcms.rest.annotation.NoCache;
+
 import com.dotmarketing.beans.ContainerStructure;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
 import com.dotmarketing.business.APILocator;
 import com.dotmarketing.business.DotStateException;
-import com.dotmarketing.business.Permissionable;
 import com.dotmarketing.business.web.WebAPILocator;
 import com.dotmarketing.exception.DotDataException;
 import com.dotmarketing.exception.DotSecurityException;
@@ -38,8 +28,18 @@ import com.dotmarketing.portlets.templates.design.bean.TemplateLayout;
 import com.dotmarketing.portlets.templates.model.Template;
 import com.dotmarketing.util.VelocityUtil;
 import com.dotmarketing.viewtools.DotTemplateTool;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.exception.ResourceNotFoundException;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.liferay.portal.model.User;
 
@@ -52,7 +52,7 @@ import com.liferay.portal.model.User;
  * Call 
  *
  */
-@Path("/page")
+@Path("/pageWithContentlets")
 public class PageResource  {
 
     private final WebResource webResource = new WebResource();
@@ -91,7 +91,10 @@ public class PageResource  {
         Map<String, ContainerHolder> newContainers = new LinkedHashMap<>();
         for(Container container : containers){
           List<ContainerStructure> containerStructures = APILocator.getContainerAPI().getContainerStructures(container);
-          newContainers.put(container.getIdentifier(),new ContainerHolder(container, containerStructures, null));
+
+          List<Contentlet> contentlets = APILocator.getContentletAPI().findPageContentlets(page.getIdentifier(), container.getIdentifier(), "tree_order", true, -1, user, true);
+
+          newContainers.put(container.getIdentifier(),new ContainerHolder(container, containerStructures, null, contentlets));
           
         }
         TemplateLayout layout=(null!=template.getTheme()) ? new DotTemplateTool().themeLayout(template.getInode()) : null;
@@ -150,7 +153,9 @@ public class PageResource  {
         
         for(Container container : containers){
           List<ContainerStructure> containerStructures = APILocator.getContainerAPI().getContainerStructures(container);
-          newContainers.put(container.getIdentifier(), new ContainerHolder(container, containerStructures, VelocityUtil.mergeTemplate("/live/" + container.getIdentifier() + ".container", context)));  
+          List<Contentlet> contentlets = APILocator.getContentletAPI().findPageContentlets(page.getIdentifier(), container.getIdentifier(), "tree_order", true, -1, user, true);
+
+          newContainers.put(container.getIdentifier(),new ContainerHolder(container, containerStructures, null, contentlets));
         }
         
         PageResourceHolder prh = new PageResourceHolder(host, template, newContainers, page, layout);
