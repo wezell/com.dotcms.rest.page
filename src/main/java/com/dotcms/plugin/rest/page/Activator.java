@@ -8,7 +8,7 @@ import com.dotmarketing.util.Logger;
 
 public class Activator extends GenericBundleActivator {
 
-  Class[] clazzes = {PageResource.class};
+  Class[] clazzes = {PageResource.class,ContentWithRelationsResource.class};
 
   public void start(BundleContext context) throws Exception {
     for (Class clazz : clazzes) {
