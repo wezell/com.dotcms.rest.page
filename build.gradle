@@ -1,74 +1,102 @@
-apply plugin: 'application'
-apply plugin: 'osgi'
-apply plugin: 'war'
-apply plugin: 'eclipse'
+plugins {
+    id 'biz.aQute.bnd.builder' version '3.3.0'
+}
 
 sourceCompatibility = '1.8'
-version = '0.1'
+version = '0.2'
 
 repositories {
-    maven {
-        url "http://repo.dotcms.com/artifactory/libs-release"
-    }
+    maven { url "http://repo.dotcms.com/artifactory/libs-release" }
 }
 
 dependencies {
-    compile fileTree(dir: 'src/main/resources/libs', include: '*.jar')
-    compile (group: 'com.dotcms', name: 'dotcms', version: '4.1.0'){
-        transitive = true
-    }
-    providedCompile "javax.servlet:javax.servlet-api:3.1.0"
-}
-def tmpPath = "build/tmp/fragment"
-
-task mani{
-
-    doLast {
-        new File( tmpPath + "/META-INF").mkdirs()
-    
-        def exportFragmentStr = '''\
-Bundle-ManifestVersion: 2
-Bundle-Name: System extra packages
-Bundle-SymbolicName: fragment.system.extra.packages
-Bundle-Version: 1.0
-Bundle-Description: Bundle exporting 3rdparty libs
-Fragment-Host: system.bundle; extension:=framework
-Export-Package: com.dotcms.mock.response,com.dotcms.repackage.javax.ws.rs,com.dotcms.repackage.javax.ws.rs.core,com.dotcms.repackage.javax.ws.rs.core.Response,com.dotcms.rest,com.dotcms.rest.annotation,com.dotcms.rest.config,com.dotmarketing.beans,com.dotmarketing.business,com.dotmarketing.business.web,com.dotmarketing.exception,com.dotmarketing.osgi,com.dotmarketing.portlets.containers.business,com.dotmarketing.portlets.containers.model,com.dotmarketing.portlets.contentlet.business,com.dotmarketing.portlets.contentlet.model,com.dotmarketing.portlets.contentlet.util,com.dotmarketing.portlets.htmlpageasset.business,com.dotmarketing.portlets.htmlpageasset.model,com.dotmarketing.portlets.languagesmanager.business,com.dotmarketing.portlets.languagesmanager.model,com.dotmarketing.portlets.structure.model,com.dotmarketing.portlets.structure.model.ContentletRelationships,com.dotmarketing.portlets.templates.business,com.dotmarketing.portlets.templates.design.bean,com.dotmarketing.portlets.templates.model,com.dotmarketing.util,com.dotmarketing.util.json,com.dotmarketing.viewtools,com.dotmarketing.viewtools.content.util,com.fasterxml.jackson.annotation,com.fasterxml.jackson.core,com.fasterxml.jackson.databind,com.liferay.portal.model,javax.management,javax.servlet.resources,javax.servlet;javax.servlet.http;version=3.1.0,org.apache.velocity.context,org.apache.velocity.exception,org.apache.velocity.tools.view.context,org.osgi.framework
-        '''
-        new File(tmpPath + "/META-INF/MANIFEST.MF").write(exportFragmentStr)
-    }
+    compile('com.dotcms:dotcms:5.0.2') { transitive = true }
 }
 
+import java.util.jar.*
 
-
-task fragment(type: Zip, dependsOn: mani) {
-    new File("build/libs").mkdirs()
-    from tmpPath
-    include '*'
-    include '*/*' //to include contents of a folder present inside Reports directory
-    archiveName 'page-rest-exports-fragment.jar'
-    destinationDir(file('build/libs'))
-}
-
-
-
+/////////////////////////
+//Plugin jar
+/////////////////////////
 jar {
     manifest {
-        name = 'Page Rest Endpoint'
-        instruction 'Bundle-Vendor', 'dotcms'
-        instruction 'Bundle-Description', 'Page Rest Endpoint'
-        instruction 'Bundle-DocURL', 'http://www.dotcms.com'
-        instruction 'Bundle-Activator', 'com.dotcms.plugin.rest.page.Activator'        
-        instruction 'DynamicImport-Package', '*'
-        instruction 'Import-Package', '*;version=0'
+        attributes (
+                'Bundle-Vendor': 'dotCMS',
+                'Bundle-Description': 'dotCMS - Page With Content Rest',
+                'Bundle-DocURL': 'https://dotcms.com/',
+                'Bundle-Activator': 'com.dotcms.plugin.rest.page.Activator' ,
+                'Import-Package': '*;version=0'
+        )
     }
 }
-jar.dependsOn fragment
+jar.finalizedBy 'fragmentJar'
 
+/////////////////////////
+//Fragment jar
+/////////////////////////
 
-
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.9'
+ext {
+    bundleName = "Page With Content Rest"
+    bundleDescription = "dotCMS - Page With Content Rest"
+    fragmentHost = "system.bundle; extension:=framework"
+    bundleSymbolicName = "" //Auto generated based on the plugin jar
+    bundleVersion = "" //Auto generated based on the plugin jar
+    importPackage = "" //Auto generated based on the plugin jar
+    bundleManifestVersion = "" //Auto generated based on the plugin jar
+    bundleDocURL = "" //Auto generated based on the plugin jar
+    bundleVendor = "" //Auto generated based on the plugin jar
+}
+/**
+ * The import generates versions like this: version="[1.8,2)"
+ * That format does not work for the export, so we need to replace it
+ * to: version=0
+ */
+ext.fixVersionNumber = {importValue ->
+    return importValue.replaceAll("\"\\[[0-9.,]+\\)\"", "0")
 }
 
+/**
+ * Reads the Manifest file of the just created plugin jar in order to get the required info
+ * to automatically create the fragment jar.
+ */
+task readManifesttAttributes {
+    doFirst {
+        File file = configurations.baseline.singleFile
+        JarFile jar = new JarFile(file)
+        Attributes manifest = jar.getManifest().getMainAttributes()
+        bundleSymbolicName = "${manifest.getValue('Bundle-SymbolicName')}"
+        bundleVersion = "${manifest.getValue('Bundle-Version')}"
+        importPackage = "${manifest.getValue('Import-Package')}"
+        bundleManifestVersion = "${manifest.getValue('Bundle-ManifestVersion')}"
+        bundleDocURL = "${manifest.getValue('Bundle-DocURL')}"
+        bundleVendor = "${manifest.getValue('Bundle-Vendor')}"
+    }
+}
+task fragmentJar(type: Jar) {
+
+    doFirst {
+        //Setting the fragment jar name
+        baseName = project.name
+        archiveName = "${baseName}.fragment-${version}.jar"
+        importPackage = fixVersionNumber(importPackage)
+
+        manifest {
+            attributes (
+                    'Bundle-Name': "${bundleName}",
+                    'Bundle-Description': "${bundleDescription}",
+                    'Bundle-Vendor': "${bundleVendor}",
+                    'Bundle-Version': "${version}",
+                    'Bundle-SymbolicName': "${baseName}.fragment",
+                    'Bundle-ManifestVersion': "${bundleManifestVersion}",
+                    'Bundle-DocURL': "${bundleDocURL}",
+                    'Fragment-Host': "${fragmentHost}",
+                    'Export-Package': "${importPackage}"
+            )
+        }
+    }
+}
+fragmentJar.dependsOn 'readManifesttAttributes'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.2'
+}

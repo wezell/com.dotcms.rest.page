@@ -1,7 +1,19 @@
 package com.dotcms.plugin.rest.page;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.exception.ResourceNotFoundException;
+
 import com.dotcms.mock.response.BaseResponse;
 import com.dotcms.mock.response.MockHttpResponse;
+import com.dotcms.rendering.velocity.servlet.VelocityModeHandler;
+import com.dotcms.rendering.velocity.viewtools.DotTemplateTool;
 import com.dotcms.repackage.javax.ws.rs.GET;
 import com.dotcms.repackage.javax.ws.rs.Path;
 import com.dotcms.repackage.javax.ws.rs.PathParam;
@@ -12,7 +24,6 @@ import com.dotcms.repackage.javax.ws.rs.core.Response.ResponseBuilder;
 import com.dotcms.rest.InitDataObject;
 import com.dotcms.rest.WebResource;
 import com.dotcms.rest.annotation.NoCache;
-
 import com.dotmarketing.beans.ContainerStructure;
 import com.dotmarketing.beans.Host;
 import com.dotmarketing.beans.Identifier;
@@ -26,22 +37,12 @@ import com.dotmarketing.portlets.contentlet.model.Contentlet;
 import com.dotmarketing.portlets.htmlpageasset.model.HTMLPageAsset;
 import com.dotmarketing.portlets.templates.design.bean.TemplateLayout;
 import com.dotmarketing.portlets.templates.model.Template;
+import com.dotmarketing.util.PageMode;
 import com.dotmarketing.util.VelocityUtil;
-import com.dotmarketing.viewtools.DotTemplateTool;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.liferay.portal.model.User;
+import com.liferay.portal.util.WebKeys;
 
 
 
@@ -52,11 +53,19 @@ import com.liferay.portal.model.User;
  * Call 
  *
  */
-@Path("/pageWithContentlets")
+@Path("/page")
 public class PageResource  {
 
     private final WebResource webResource = new WebResource();
-
+    @NoCache
+    @GET
+    @Path("/")
+    public Response loadJson(@Context HttpServletRequest request) throws DotStateException,
+            DotDataException, DotSecurityException, JsonProcessingException {
+        ResponseBuilder builder = Response.ok("ok", MediaType.APPLICATION_JSON);
+        return builder.build();
+        
+    }
     /**
 
      * 
@@ -75,7 +84,7 @@ public class PageResource  {
             DotDataException, DotSecurityException, JsonProcessingException {
         // force authentication
         InitDataObject auth = webResource.init(false, request, false);
-        User user = auth.getUser();
+        User user = auth.getUser()==null ? APILocator.systemUser() : auth.getUser();
         uri = (uri.startsWith("/"))?uri : "/"+uri;
         
         String hostName = request.getParameter("Host") ==null ? request.getServerName() : request.getParameter("Host");
@@ -134,15 +143,24 @@ public class PageResource  {
         // get a context
         org.apache.velocity.context.Context context = VelocityUtil.getWebContext(request, new MockHttpResponse(new BaseResponse().response()).response());
         
-        User user = auth.getUser();
+        User user = auth.getUser()==null ? APILocator.systemUser() : auth.getUser();
         uri = (uri.startsWith("/"))?uri : "/"+uri;
-        
+        request.setAttribute(WebKeys.USER, user);
         String hostName = request.getParameter("Host") ==null ? request.getServerName() : request.getParameter("Host");
         Host host = WebAPILocator.getHostWebAPI().resolveHostName(hostName, user, true);
         
         //get page info
         HTMLPageAsset page = (HTMLPageAsset) APILocator.getHTMLPageAssetAPI().getPageByPath(uri, host, APILocator.getLanguageAPI().getDefaultLanguage().getId(), true);
-        page.setProperty("rendered", VelocityUtil.mergeTemplate("/live/" + page.getIdentifier() + "_" + page.getLanguageId() + ".dotpage", context));
+        System.err.println();
+        PageMode mode = PageMode.get(request);
+        System.err.println(mode);
+        System.err.println(uri);
+        System.err.println(page);
+        
+        System.err.println(page.getURI());
+        
+        System.err.println();
+        page.setProperty("rendered", VelocityModeHandler.modeHandler(mode, request, response, page.getURI(), host).eval());
         
         Template template = (Template) APILocator.getVersionableAPI().findLiveVersion(page.getTemplateId(), user, true);
         List<Container> containers = APILocator.getTemplateAPI().getContainersInTemplate(template, user, true);
